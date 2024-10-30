@@ -1,0 +1,16 @@
+# 应用服务 WEB 访问端口
+server:
+  port: 8110
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://192.168.2.130:3306/authorization-example?serverTimezone=UTC&userUnicode=true&characterEncoding=utf-8
+    username: root
+    password: 123456
+logging:
+  level:
+    sql: debug
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
