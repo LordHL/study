@@ -8,4 +8,5 @@ public class Role {
     private Long id;
     private String name;
     private String roleCode;
+    private String name;
 }
