@@ -63,6 +63,9 @@ public class RedissonConfig {
     @Value("${spring.data.redis.redisson.singleServerConfig.dnsMonitoringInterval}")
     private Integer dnsMonitoringInterval;
 
+    @Value("${spring.data.redis.database}")
+    private Integer database;
+
     //集群模式
 //    @Value("${spring.data.redis.redisson.cluster.nodes}")
     private List<String> clusterNodes;
@@ -99,6 +102,7 @@ public class RedissonConfig {
                 .setIdleConnectionTimeout(idleConnectionTimeout)
                 .setConnectTimeout(connectTimeout)
                 .setTimeout(timeout)
+                .setDatabase(database)
                 .setRetryAttempts(retryAttempts)
                 .setRetryInterval(retryInterval)
                 .setSubscriptionsPerConnection(subscriptionsPerConnection)

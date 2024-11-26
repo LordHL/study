@@ -22,7 +22,7 @@ import org.hibernate.validator.constraints.Length;
 @Builder
 public class RegisterUserBO {
 
-    @NotNull(message = "user id can not empty")
+//    @NotNull(message = "user id can not empty")
     private Long id;
 
 

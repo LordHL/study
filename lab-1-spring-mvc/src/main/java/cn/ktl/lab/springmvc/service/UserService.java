@@ -5,6 +5,7 @@ package cn.ktl.lab.springmvc.service;
  * Des: TODO
  */
 
+import cn.hutool.core.collection.CollUtil;
 import cn.ktl.lab.springmvc.config.AuthSvcConfig;
 import cn.ktl.lab.springmvc.enums.UserTypeDefaultGroupEnum;
 import cn.ktl.lab.springmvc.enums.UserTypeEnum;
@@ -15,10 +16,7 @@ import cn.ktl.lab.springmvc.external.authservice.model.vo.AuthSvcUserVO;
 import cn.ktl.lab.springmvc.external.authservice.service.AuthSvcUserService;
 import cn.ktl.lab.springmvc.mapper.*;
 import cn.ktl.lab.springmvc.model.*;
-import cn.ktl.lab.springmvc.utils.BeanConvertUtils;
-import cn.ktl.lab.springmvc.utils.JsonUtils;
-import cn.ktl.lab.springmvc.utils.PasswordValidatorUtils;
-import cn.ktl.lab.springmvc.utils.SecureEncryptionUtils;
+import cn.ktl.lab.springmvc.utils.*;
 import cn.ktl.lab.springmvc.vo.UserVO;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -32,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 
 import static cn.ktl.lab.springmvc.exception.UmErrorCodeEnum.UM_USER_EMAIL_HAS_EXIST;
 
@@ -46,6 +45,7 @@ public class UserService extends ServiceImpl<UserMapper, User> {
     private final TotpInfoMapper totpInfoMapper;
     private final EmployeeMapper employeeMapper;
 
+    private final SnowflakeIdUtils snowflakeIdUtils;
     private final PasswordEncoder passwordEncoder;
     private final AuthSvcUserService authSvcUserService;
     private final AuthSvcConfig authSvcConfig;
@@ -63,6 +63,9 @@ public class UserService extends ServiceImpl<UserMapper, User> {
         PasswordValidatorUtils.isValidPassword(userBO.getPassword());
         //1.创建user
         checkEmailIsExist(userBO.getEmail());
+        if (userBO.getId() == null){
+            userBO.setId(snowflakeIdUtils.nextId());
+        }
 
         User user = BeanConvertUtils.baseConvert(userBO, User.class);
         LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
@@ -72,6 +75,7 @@ public class UserService extends ServiceImpl<UserMapper, User> {
         user.setUserStatus(1);
         user.setFullName(userBO.getFirstName() + " " + userBO.getLastName());
         user.setUpdatedTime(now);
+        user.setUpdatedBy("1");
         save(user);
         log.info("创建用户到um_user表：{}", JsonUtils.toJsonPrettyString(user));
 
@@ -159,7 +163,18 @@ public class UserService extends ServiceImpl<UserMapper, User> {
     }
 
 
-    public void batchCreateUsers(){
+    public void batchCreateUsers(BatchCreateUserBO batchCreateUserBO){
+        List<RegisterUserBO> users = batchCreateUserBO.getUsers();
+        if (CollUtil.isEmpty(users)){
+            return;
+        }
+
+        for (RegisterUserBO bo : users){
+            String email = bo.getEmail();
+            String username = email.split("@")[0]; // 获取 @ 之前的部分
+            long l = snowflakeIdUtils.nextId();
+//            Long id
+        }
 
     }
 

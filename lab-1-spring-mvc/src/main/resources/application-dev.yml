@@ -59,6 +59,7 @@ spring:
           merge-sql: false
   data:
     redis:
+      database: 5
       host: 192.168.2.130
       port: 6379
       password: admin
@@ -95,14 +96,6 @@ spring:
           connectionPoolSize: 64
           # DNS监测时间间隔，单位：毫秒
           dnsMonitoringInterval: 5000
-          ########### 集群模式 ###############################
-          #cluster:
-          #nodes: 127.0.0.1:6379,127.0.0.2:6379,127.0.0.3:6379
-          ########### 哨兵模式 ################################
-          #sentinel:
-          #master: 127.0.0.1:6379, # Sentinel中配置的主节点名称
-          #nodes: 127.0.0.2:6379,127.0.0.3:6379
-        # 官方文档教程：https://github.com/redisson/redisson/wiki/Table-of-Content
 mybatis-plus:
   configuration:
     cache-enabled: true
@@ -120,10 +113,15 @@ mybatis-plus:
 logging:
   level:
     com.hmall: debug
+    com.alibaba.druid.pool: DEBUG
+    org.springframework.jdbc.datasource: DEBUG
+    org.springframework.boot: INFO
+
   pattern:
     dateformat: HH:mm:ss:SSS
   file:
     path: "logs/${spring.application.name}"
+
 
 
 auth:

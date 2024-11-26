@@ -59,6 +59,7 @@ spring:
           merge-sql: false
   data:
     redis:
+      database: 7
       host: 192.168.2.130
       port: 6379
       password: admin
@@ -70,6 +71,7 @@ spring:
           min-idle: 0     #最小空闲连接，默认0
           dnsMonitoringInterval: 5000
       redisson:
+#        database: 7
         # 单节点配置
         singleServerConfig:
           # 连接空闲超时，单位：毫秒
@@ -95,15 +97,6 @@ spring:
           connectionPoolSize: 64
           # DNS监测时间间隔，单位：毫秒
           dnsMonitoringInterval: 5000
-          ########### 集群模式 ###############################
-          #cluster:
-          #nodes: 127.0.0.1:6379,127.0.0.2:6379,127.0.0.3:6379
-          ########### 哨兵模式 ################################
-          #sentinel:
-          #master: 127.0.0.1:6379, # Sentinel中配置的主节点名称
-          #nodes: 127.0.0.2:6379,127.0.0.3:6379
-        # 官方文档教程：https://github.com/redisson/redisson/wiki/Table-of-Content
-      database: 2
 # mybatis
 mybatis-plus:
   configuration:
@@ -122,6 +115,9 @@ mybatis-plus:
 logging:
   level:
     com.hmall: debug
+    com.alibaba.druid.pool: DEBUG
+    org.springframework.jdbc.datasource: DEBUG
+    org.springframework.boot: INFO
   pattern:
     dateformat: HH:mm:ss:SSS
   file:
@@ -129,9 +125,9 @@ logging:
 # auth service config
 auth:
   service:
-    baseUrl: http://10.29.29.115/common/authsvc/api/
-    clientId: cde875c3-82a9-4a60-b7ff-d4a96b87fc5c
-    clientSecret: ADr9P)jOs@F!W=co4jxNJSa%4YL7AQuM
+    baseUrl: http://10.202.67.10/common/authsvc/api/
+    clientId: 4e0c3211-3389-42b1-a027-317629b8c235
+    clientSecret: M>XlLu;QI5VcyZUT4#gL1SI$x)ixiD{s
     subTenant: oneformacommonservice # 必传字段 参数的值含义自己定义
     token-expire-time: 32400 # 9 hours  second
     refresh-token-expire-time: 82800 #23 hours  second
