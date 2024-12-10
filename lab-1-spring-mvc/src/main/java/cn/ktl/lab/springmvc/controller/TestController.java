@@ -1,5 +1,11 @@
 package cn.ktl.lab.springmvc.controller;
 
+import cn.ktl.lab.springmvc.base.ResponseResult;
+import cn.ktl.lab.springmvc.model.RegisterUserBO;
+import jakarta.validation.Valid;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -8,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Des: TODO
  */
 @RestController
+@Validated
 @RequestMapping
 public class TestController {
     private static final String VERIFY_URL = "https://service.mtcaptcha.com/mtcv1/api/checktoken";
@@ -33,4 +40,10 @@ public class TestController {
 //
 //        return ResponseResult.success("");
 //    }
+
+    @PostMapping("")
+    public ResponseResult<Boolean> create(@RequestBody @Valid TestBO userBO) {
+
+        return ResponseResult.success(Boolean.TRUE);
+    }
 }

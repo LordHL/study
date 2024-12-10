@@ -10,6 +10,8 @@ import com.github.lianjiatech.retrofit.spring.boot.interceptor.Intercept;
 import retrofit2.Response;
 import retrofit2.http.*;
 
+import java.util.List;
+
 @RetrofitClient(baseUrl = "${auth.service.baseUrl}")
 @Intercept(handler = XApiKeyInterceptor.class)
 public interface AuthSvcUserClient {
@@ -116,4 +118,11 @@ public interface AuthSvcUserClient {
      */
     @PUT("v1/update-user/{loginuid}/")
     AuthSvcResponseResult updateUser(@Path("loginuid") String loginuid, @Body AuthUpdateUserDTO authUpdateUserDTO);
+
+    @POST("v1/delete-user/")
+    AuthSvcResponseResult deleteUser( @Body AuthDeleteUserDTO authDeleteUserDTO);
+
+
+    @GET("v1/users/")
+    List<UserListResponseResult> listUser();
 }

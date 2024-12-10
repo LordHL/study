@@ -6,11 +6,14 @@ package cn.ktl.lab.springmvc.service;
  */
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.extra.spring.SpringUtil;
 import cn.ktl.lab.springmvc.config.AuthSvcConfig;
 import cn.ktl.lab.springmvc.enums.UserTypeDefaultGroupEnum;
 import cn.ktl.lab.springmvc.enums.UserTypeEnum;
 import cn.ktl.lab.springmvc.exception.BusinessException;
 import cn.ktl.lab.springmvc.external.authservice.model.RegisterResponseResult;
+import cn.ktl.lab.springmvc.external.authservice.model.UserListResponseResult;
+import cn.ktl.lab.springmvc.external.authservice.model.dto.AuthDeleteUserDTO;
 import cn.ktl.lab.springmvc.external.authservice.model.dto.AuthSvcUserDTO;
 import cn.ktl.lab.springmvc.external.authservice.model.vo.AuthSvcUserVO;
 import cn.ktl.lab.springmvc.external.authservice.service.AuthSvcUserService;
@@ -21,6 +24,7 @@ import cn.ktl.lab.springmvc.vo.UserVO;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import kotlin.jvm.internal.Lambda;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,9 +34,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static cn.ktl.lab.springmvc.exception.UmErrorCodeEnum.UM_USER_EMAIL_HAS_EXIST;
+import static com.fasterxml.jackson.databind.type.LogicalType.Collection;
 
 @Service
 @RequiredArgsConstructor
@@ -49,6 +59,8 @@ public class UserService extends ServiceImpl<UserMapper, User> {
     private final PasswordEncoder passwordEncoder;
     private final AuthSvcUserService authSvcUserService;
     private final AuthSvcConfig authSvcConfig;
+
+    private final UserMappingAuthMapper userMappingAuthMapper;
 
     @Value("${auth.service.recovery-key-secret:z/yAKXDdpwtCkfIDSYCkHu8z5dSbglS3Ovk628oTlGQ=}")
     private String recoveryKeySecret;
@@ -176,6 +188,112 @@ public class UserService extends ServiceImpl<UserMapper, User> {
 //            Long id
         }
 
+    }
+
+    @Transactional
+    public void batchDeleteUser(List<String> emails){
+        for (String email : emails){
+            getSelf().deleteUser(email);
+        }
+    }
+
+    @Transactional
+    public void deleteUser(String email){
+        LambdaQueryWrapper<User> queryWrapper = Wrappers.<User>lambdaQuery();
+        queryWrapper.eq(User::getEmail, email);
+        User user = userMapper.selectOne(queryWrapper);
+        if (user == null){
+            log.info("user email = {} not exist ",email);
+            return;
+        }
+        //1. 删除um_user
+        userMapper.deleteById(user);
+        UserMappingAuth userMappingAuth = userMappingAuthMapper.selectByUserIdUserMappingAuth(user.getId());
+        String loginUid ;
+        if (userMappingAuth == null){
+            loginUid  = user.getUserNo();
+        }else {
+            loginUid = userMappingAuth.getAuthLoginUid();
+        }
+        AuthDeleteUserDTO authDeleteUserDTO = new AuthDeleteUserDTO();
+        authDeleteUserDTO.setLoginUid(loginUid);
+        authSvcUserService.deleteUser(authDeleteUserDTO);
+        //2.删除um_employee
+        LambdaQueryWrapper<Employee> queryWrapper1 = Wrappers.<Employee>lambdaQuery();
+        queryWrapper1.eq(Employee::getEmail, email);
+        Employee employee = employeeMapper.selectOne(queryWrapper1);
+        if (employee != null){
+            employeeMapper.deleteById(employee);
+        }
+
+        //3.删除用户关联的组
+        LambdaQueryWrapper<UserGroup> q2 = Wrappers.lambdaQuery();
+        q2.eq(UserGroup::getUserId,user.getId());
+        userGroupMapper.delete(q2);
+
+    }
+
+    private UserService getSelf() {
+        return SpringUtil.getBean(getClass());
+    }
+
+
+    public void handleUserMappingAuth() {
+        // Step 1: 获取所有用户数据
+        List<UserListResponseResult> userListResponseResults = authSvcUserService.listUser();
+
+        // Step 2: 筛选 socialLogin 为 true 的数据
+        List<UserListResponseResult> socialLoginUsers = userListResponseResults.stream()
+                .filter(UserListResponseResult::getSocialLogin)
+                .collect(Collectors.toList());
+
+        // 筛选 socialLogin 为 false 的用户
+        List<UserListResponseResult> nonSocialLoginUsers = userListResponseResults.stream()
+                .filter(user -> !user.getSocialLogin())
+                .collect(Collectors.toList());
+
+        // 获取 socialLoginUsers 的 email 集合
+        Set<String> socialLoginEmails = socialLoginUsers.stream()
+                .map(UserListResponseResult::getEmail)
+                .collect(Collectors.toSet());
+
+        // Step 3: 根据 email 分组，筛选出 email 重复的用户
+        List<UserListResponseResult> differentEmailUsers = nonSocialLoginUsers.stream()
+                .filter(user -> !socialLoginEmails.contains(user.getEmail())) // 查找 email 相同的非 socialLogin 用户
+                .collect(Collectors.toList());
+
+        List<String> emails = differentEmailUsers.stream().map(UserListResponseResult::getEmail).collect(Collectors.toList());
+        LambdaQueryWrapper<User> queryWrapper = Wrappers.lambdaQuery();
+        queryWrapper.in(User::getEmail,emails);
+
+        Map<String, UserListResponseResult> emailMap = differentEmailUsers.stream().collect(Collectors.toMap(UserListResponseResult::getEmail, Function.identity()));
+        List<User> users = userMapper.selectList(queryWrapper);
+        if (CollUtil.isNotEmpty(users)){
+            for (User user : users){
+                UserMappingAuth userMappingAuth = new UserMappingAuth(user.getId(), emailMap.get(user.getEmail()).getLoginuid());
+                log.info("UserMappingAuth insert :{}",JsonUtils.toJsonPrettyString(userMappingAuth));
+                userMappingAuthMapper.insert(userMappingAuth);
+            }
+        }
+    }
+
+    private final DynamicEmployeeMapper dynamicEmployeeMapper;
+
+    public void queryEmployeeIdOrderDesc(){
+        LambdaQueryWrapper<DynamicEmployee> queryWrapper = Wrappers.lambdaQuery();
+        List<DynamicEmployee> dynamicEmployees = dynamicEmployeeMapper.selectList(queryWrapper);
+        List<Integer> userNos = new ArrayList<>(5000);
+        for (DynamicEmployee dynamicEmployee : dynamicEmployees){
+            String employeeId = dynamicEmployee.getEmployeeId();
+            //P9027660
+            String num = employeeId.substring(1);
+            String addOne = 1 + num;
+            log.info("addOne :{}",addOne);
+            Integer u = Integer.valueOf(addOne);
+            userNos.add(u);
+        }
+        List<Integer> collect = userNos.stream().sorted().collect(Collectors.toList());
+        collect.forEach(System.out::println);
     }
 
 

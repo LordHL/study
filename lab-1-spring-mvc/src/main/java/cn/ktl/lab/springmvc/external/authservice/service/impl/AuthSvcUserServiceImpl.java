@@ -15,6 +15,8 @@ import retrofit2.Response;
 import cn.ktl.lab.springmvc.external.authservice.model.*;
 import cn.ktl.lab.springmvc.external.authservice.model.dto.*;
 
+import java.util.List;
+
 import static cn.ktl.lab.springmvc.exception.UmErrorCodeEnum.*;
 
 @Service
@@ -125,4 +127,16 @@ public class AuthSvcUserServiceImpl implements AuthSvcUserService {
         return Boolean.TRUE;
     }
 
+    @Override
+    public void deleteUser(AuthDeleteUserDTO authDeleteUserDTO) {
+        AuthSvcResponseResult responseResult = authSvcUserClient.deleteUser(authDeleteUserDTO);
+        if (!responseResult.isSuccess()){
+            throw BusinessException.of(UM_USER_INVOKE_AUTH_SOCIAL_LOGIN_FAILED);
+        }
+    }
+
+    @Override
+    public List<UserListResponseResult> listUser() {
+        return authSvcUserClient.listUser();
+    }
 }

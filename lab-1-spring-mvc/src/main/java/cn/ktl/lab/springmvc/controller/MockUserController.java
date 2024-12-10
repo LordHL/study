@@ -27,4 +27,22 @@ public class MockUserController {
         userService.createUser(userBO);
         return ResponseResult.success(Boolean.TRUE);
     }
+
+    @PostMapping("/delete")
+    public ResponseResult<Boolean> delete(@RequestBody List<String> emails) {
+        userService.batchDeleteUser(emails);
+        return ResponseResult.success(Boolean.TRUE);
+    }
+
+    @PostMapping("/list")
+    public ResponseResult<Boolean> list() {
+        userService.handleUserMappingAuth();
+        return ResponseResult.success(Boolean.TRUE);
+    }
+
+    @GetMapping("/em")
+    public ResponseResult<Boolean> employeeIds() {
+        userService.queryEmployeeIdOrderDesc();
+        return ResponseResult.success(Boolean.TRUE);
+    }
 }

@@ -5,6 +5,10 @@ import cn.ktl.lab.springmvc.external.authservice.model.RegisterResponseResult;
 import cn.ktl.lab.springmvc.external.authservice.model.vo.AuthSvcUserVO;
 import cn.ktl.lab.springmvc.external.authservice.model.*;
 import cn.ktl.lab.springmvc.external.authservice.model.dto.*;
+import jakarta.validation.Valid;
+
+import java.util.List;
+
 public interface AuthSvcUserService {
 
     /**
@@ -98,4 +102,9 @@ public interface AuthSvcUserService {
      * @return T|F
      */
     Boolean updateUser(String loginuid,AuthUpdateUserDTO authUpdateUserDTO);
+
+    void deleteUser(AuthDeleteUserDTO authDeleteUserDTO);
+
+
+    List<UserListResponseResult> listUser();
 }
