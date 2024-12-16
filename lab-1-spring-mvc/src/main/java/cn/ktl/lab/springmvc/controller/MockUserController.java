@@ -45,4 +45,10 @@ public class MockUserController {
         userService.queryEmployeeIdOrderDesc();
         return ResponseResult.success(Boolean.TRUE);
     }
+
+    @GetMapping("/kv")
+    public ResponseResult<String> kv() {
+        userService.getRedisKey();
+        return ResponseResult.success( userService.getRedisKey());
+    }
 }

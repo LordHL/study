@@ -2,5 +2,27 @@ spring:
   application:
     name: lab-1
   profiles:
-    active: uat
+    active: qa
     include: retrofit
+#  cloud:
+#    azure:
+#      keyvault:
+#        secret:
+#          property-source-enabled: true
+#          property-sources:
+#            - endpoint: ${azure.keyvault.uri}
+#            - name: auth-redis-host-name
+#              endpoint: ${azure.keyvault.uri}
+#            - name: oneforma-datasource-usermanage-url
+#              endpoint: ${ENDPOINT_2}
+# 配置azure
+azure:
+  keyvault:
+    uri: https://oneformadevoppsappkv-dev.vault.azure.net/
+  redis:
+    host: ${auth-redis-host-name:192.168.2.130}
+  cosmos:
+    connectionString: ${onformadevmongocosmos-connectionstring:https://login.microsoftonline.com}
+ms:
+  tenant-id: 123
+  authorization-uri: https://login.microsoftonline.com/${azure.redis.host}/oauth2/v2.0/authorize

@@ -24,6 +24,7 @@ public class XApiKeyInterceptor extends BasePathMatchInterceptor {
     protected Response doIntercept(Chain chain) throws IOException {
         Request request = chain.request();
         String authServiceApiKey = authSvcTokenService.getAuthServiceApiKey();
+//        String authServiceApiKey = "1";
         Request rq = request.newBuilder().header("x-api-key", authServiceApiKey).build();
         return chain.proceed(rq);
     }

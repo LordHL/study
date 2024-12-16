@@ -96,6 +96,8 @@ spring:
           connectionPoolSize: 64
           # DNS监测时间间隔，单位：毫秒
           dnsMonitoringInterval: 5000
+          # 是否开启ssl验证
+          sslEnableEndpointIdentification: false
 
 mybatis-plus:
   configuration:

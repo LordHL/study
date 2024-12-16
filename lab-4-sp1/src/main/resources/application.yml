@@ -1,4 +1,6 @@
 # 应用服务 WEB 访问端口
 server:
   port: 8081
-
+ms:
+  tenant-id: 123
+  authorization-uri: https://login.microsoftonline.com/${ms.tenant-id}/oauth2/v2.0/authorize

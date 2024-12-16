@@ -63,6 +63,9 @@ public class RedissonConfig {
     @Value("${spring.data.redis.redisson.singleServerConfig.dnsMonitoringInterval}")
     private Integer dnsMonitoringInterval;
 
+    @Value("${spring.data.redis.redisson.singleServerConfig.sslEnableEndpointIdentification:true}")
+    private Boolean sslEnableEndpointIdentification;
+
     @Value("${spring.data.redis.database}")
     private Integer database;
 
@@ -96,8 +99,14 @@ public class RedissonConfig {
      * @param config redisson配置
      */
     private void configSingleServer(Config config) {
+        String redisUrl;
+        if (sslEnableEndpointIdentification){
+            redisUrl = "rediss://" + redisHost.split(":")[0] + ":" + port;
+        }else {
+            redisUrl = "redis://" + redisHost.split(":")[0] + ":" + port;
+        }
         config.useSingleServer()
-                .setAddress("redis://" + redisHost + ":" + port)
+                .setAddress(redisUrl)
                 .setPassword(password)
                 .setIdleConnectionTimeout(idleConnectionTimeout)
                 .setConnectTimeout(connectTimeout)
@@ -110,7 +119,9 @@ public class RedissonConfig {
                 .setSubscriptionConnectionPoolSize(subscriptionConnectionPoolSize)
                 .setConnectionMinimumIdleSize(connectionMinimumIdleSize)
                 .setConnectionPoolSize(connectionPoolSize)
-                .setDnsMonitoringInterval(dnsMonitoringInterval);
+                .setDnsMonitoringInterval(dnsMonitoringInterval)
+                .setSslEnableEndpointIdentification(sslEnableEndpointIdentification)
+        ;
     }
 
 

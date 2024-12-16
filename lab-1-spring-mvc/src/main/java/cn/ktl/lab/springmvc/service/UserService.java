@@ -28,6 +28,7 @@ import kotlin.jvm.internal.Lambda;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,6 +66,8 @@ public class UserService extends ServiceImpl<UserMapper, User> {
     @Value("${auth.service.recovery-key-secret:z/yAKXDdpwtCkfIDSYCkHu8z5dSbglS3Ovk628oTlGQ=}")
     private String recoveryKeySecret;
 
+
+    private final  StringRedisTemplate stringRedisTemplate;
     public UserVO get(Integer id) {
         return new UserVO().setId(id).setUsername("test");
     }
@@ -296,5 +299,11 @@ public class UserService extends ServiceImpl<UserMapper, User> {
         collect.forEach(System.out::println);
     }
 
+
+    public String getRedisKey(){
+        stringRedisTemplate.opsForValue().set("test","123");
+        String string = stringRedisTemplate.opsForValue().get("test");
+        return string;
+    }
 
 }

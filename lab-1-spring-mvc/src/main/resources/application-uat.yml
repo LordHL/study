@@ -71,7 +71,6 @@ spring:
           min-idle: 0     #最小空闲连接，默认0
           dnsMonitoringInterval: 5000
       redisson:
-#        database: 7
         # 单节点配置
         singleServerConfig:
           # 连接空闲超时，单位：毫秒
@@ -97,6 +96,7 @@ spring:
           connectionPoolSize: 64
           # DNS监测时间间隔，单位：毫秒
           dnsMonitoringInterval: 5000
+          sslEnableEndpointIdentification: false
 # mybatis
 mybatis-plus:
   configuration:
