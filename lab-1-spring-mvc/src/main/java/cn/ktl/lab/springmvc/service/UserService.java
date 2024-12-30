@@ -72,6 +72,25 @@ public class UserService extends ServiceImpl<UserMapper, User> {
         return new UserVO().setId(id).setUsername("test");
     }
 
+    public User createUserEncrypt(RegisterUserBO userBO) {
+        User user = BeanConvertUtils.baseConvert(userBO, User.class);
+        LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+        user.setLastPasswordResetTime(now);
+        user.setPassword(passwordEncoder.encode(userBO.getPassword()));
+        user.setRegistrationTime(now);
+        user.setUserStatus(1);
+        user.setFullName(userBO.getFirstName() + " " + userBO.getLastName());
+        user.setUpdatedTime(now);
+        user.setUpdatedBy("1");
+        save(user);
+        return user;
+    }
+
+    public User queryUserEncrypt(Long userId) {
+
+        return userMapper.selectById(userId);
+    }
+
     @Transactional
     public void createUser(RegisterUserBO userBO) {
         //0.校验密码格式
@@ -102,15 +121,20 @@ public class UserService extends ServiceImpl<UserMapper, User> {
         }
 
         try {
-            LambdaQueryWrapper<Group> superAdmin = Wrappers.<Group>lambdaQuery().eq(Group::getGroupName, "superAdmin");
-            Group group = groupMapper.selectOne(superAdmin);
-            if (group != null){
-                UserGroup userGroup = UserGroup.builder()
-                        .groupId(group.getId())
-                        .userId(user.getId())
-                        .build();
-                userGroupMapper.insert(userGroup);
+            if (UserTypeEnum.EMPLOYEES.getValue() == userBO.getUserType()){
+                LambdaQueryWrapper<Group> superAdmin = Wrappers.<Group>lambdaQuery().eq(Group::getGroupName, "superAdmin");
+                Group group = groupMapper.selectOne(superAdmin);
+                if (group != null){
+                    UserGroup userGroup = UserGroup.builder()
+                            .groupId(group.getId())
+                            .userId(user.getId())
+                            .build();
+                    userGroupMapper.insert(userGroup);
+                }
+            }else {
+                //TODO
             }
+
         }catch (Exception e){
             log.error("init employee superAdmin group fail : ",e);
         }
@@ -305,5 +329,7 @@ public class UserService extends ServiceImpl<UserMapper, User> {
         String string = stringRedisTemplate.opsForValue().get("test");
         return string;
     }
+
+
 
 }

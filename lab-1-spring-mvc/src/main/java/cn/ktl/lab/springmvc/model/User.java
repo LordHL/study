@@ -1,5 +1,6 @@
 package cn.ktl.lab.springmvc.model;
 
+import cn.ktl.lab.springmvc.base.db.EncryptTypeHandler;
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,7 +16,8 @@ import java.time.LocalDateTime;
  * @date 2020-11-29
  */
 @Data
-@TableName("um_user")
+@TableName(value = "um_user")
+//@TableName(value = "um_user",autoResultMap = true)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -34,6 +36,7 @@ public class User implements Serializable {
     @TableField(value = "full_name")
     private String fullName;
 
+//    @TableField(value = "first_name",typeHandler = EncryptTypeHandler.class)
     @TableField(value = "first_name")
     private String firstName;
 

@@ -2,6 +2,7 @@ package cn.ktl.lab.springmvc.controller;
 
 import cn.ktl.lab.springmvc.base.ResponseResult;
 import cn.ktl.lab.springmvc.model.RegisterUserBO;
+import cn.ktl.lab.springmvc.model.User;
 import cn.ktl.lab.springmvc.service.UserService;
 import cn.ktl.lab.springmvc.vo.UserVO;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,16 @@ public class MockUserController {
     public ResponseResult<Boolean> create(@RequestBody RegisterUserBO userBO) {
         userService.createUser(userBO);
         return ResponseResult.success(Boolean.TRUE);
+    }
+
+    @PostMapping("/encrypt")
+    public ResponseResult<User> createEncrypt(@RequestBody RegisterUserBO userBO) {
+        return ResponseResult.success(userService.createUserEncrypt(userBO));
+    }
+    @GetMapping("/encrypt/{id}")
+    public ResponseResult<User> queryUserEncrypt(@PathVariable("id")Long id){
+
+        return ResponseResult.success(userService.queryUserEncrypt(id));
     }
 
     @PostMapping("/delete")

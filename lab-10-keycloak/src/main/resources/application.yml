@@ -1,0 +1,21 @@
+# 应用服务 WEB 访问端口
+server:
+  port: 8081
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            client-id: login-app
+            client-secret: NC76DmdPDyyeNHhD5aBzgNCCmGltbdW1
+            authorization-grant-type: authorization_code
+            scope: openid
+        provider:
+          keycloak:
+            issuer-uri: http://192.168.2.130:9091/realms/common-um
+            user-name-attribute: preferred_username
+      resourceserver:
+        jwt:
+#          jwk-set-uri: http://192.168.2.130:9091/realms/common-um/protocol/openid-connect/certs
+          issuer-uri: http://192.168.2.130:9091/realms/common-um

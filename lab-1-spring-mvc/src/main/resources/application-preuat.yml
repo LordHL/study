@@ -1,3 +1,4 @@
+# 应用服务 WEB 访问端口
 server:
   port: 8801
 
@@ -11,14 +12,10 @@ spring:
     pathmatch:
       matching-strategy: ant_path_matcher
   datasource:
-    url: jdbc:postgresql://192.168.2.130:5432/usermanagement_db?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
+    url: jdbc:postgresql://oneformapostgressprestg.postgres.database.azure.com:5432/accounts_db?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
     driver-class-name: org.postgresql.Driver
-    username: postgres
-    password: admin2018
-#    url: jdbc:postgresql://10.101.32.84:5432/Accounts_db?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
-#    driver-class-name: org.postgresql.Driver
-#    username: dev_ch_rw
-#    password: Password#!Sd2024
+    username: oneforma2
+    password: password#202411
     druid:
       # 初始化大小
       initial-size: 5
@@ -62,7 +59,7 @@ spring:
           merge-sql: false
   data:
     redis:
-      database: 0
+      database: 7
       host: 192.168.2.130
       port: 6379
       password: admin
@@ -99,8 +96,8 @@ spring:
           connectionPoolSize: 64
           # DNS监测时间间隔，单位：毫秒
           dnsMonitoringInterval: 5000
-
-
+          sslEnableEndpointIdentification: false
+# mybatis
 mybatis-plus:
   configuration:
     cache-enabled: true
@@ -114,25 +111,24 @@ mybatis-plus:
       update-strategy: not_null
       id-type: auto
   mapper-locations: classpath:/com/oneforma/usermanagement/mapper/xml/*Mapper.xml
-#  type-handlers-package: cn.ktl.lab.springmvc.base.db
 
 logging:
   level:
     com.hmall: debug
+    com.alibaba.druid.pool: DEBUG
+    org.springframework.jdbc.datasource: DEBUG
+    org.springframework.boot: INFO
   pattern:
     dateformat: HH:mm:ss:SSS
   file:
     path: "logs/${spring.application.name}"
-
-
+# auth service config
 auth:
   service:
-    baseUrl: http://10.29.29.115/common/authsvc/api/
-    clientId: cde875c3-82a9-4a60-b7ff-d4a96b87fc5c
-    clientSecret: ADr9P)jOs@F!W=co4jxNJSa%4YL7AQuM
-    subTenant: oneformacommonservice
-    token-expire-time: 32400 # 9 hours  secondRequestLinkContextAutoConfiguration
+    baseUrl: https://apigw-stg.oneforma2.com/common/authsvc/api/
+    clientId: 4fefa799-56f2-4266-bfec-723d65a028db
+    clientSecret: '&7Hc{6E6XeZ!Rw^GT9-&6f#,#jXaDOf,'
+    subTenant: oneformacommonservice # 必传字段 参数的值含义自己定义
+    token-expire-time: 32400 # 9 hours  second
     refresh-token-expire-time: 82800 #23 hours  second
     recovery-key-secret: z/yAKXDdpwtCkfIDSYCkHu8z5dSbglS3Ovk628oTlGQ=
-
-

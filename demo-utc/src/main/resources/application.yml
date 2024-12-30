@@ -1,0 +1,9 @@
+# 应用服务 WEB 访问端口
+server:
+  port: 18080
+  datasource:
+    url: jdbc:postgresql://192.168.2.130:5432/usermanagement_db?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: admin2018
+

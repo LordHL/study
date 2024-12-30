@@ -2,7 +2,7 @@ spring:
   application:
     name: lab-1
   profiles:
-    active: dev
+    active: loc
     include: retrofit
 #  cloud:
 #    azure:
@@ -19,6 +19,7 @@ spring:
 azure:
   keyvault:
     uri: https://oneformadevoppsappkv-dev.vault.azure.net/
+#    uri:  https://oneformaprestagekv.vault.azure.net/  # preuat
   redis:
     host: ${auth-redis-host-name:192.168.2.130}
   cosmos:
@@ -26,3 +27,7 @@ azure:
 ms:
   tenant-id: 123
   authorization-uri: https://login.microsoftonline.com/${azure.redis.host}/oauth2/v2.0/authorize
+
+mybatis-plus:
+  encryptor:
+    secret: z/yAKXDdpwtCkfIDSYCkHu8z5dSbglS3Ovk628oTlGQ=
