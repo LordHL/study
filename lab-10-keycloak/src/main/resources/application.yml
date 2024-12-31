@@ -17,5 +17,11 @@ spring:
             user-name-attribute: preferred_username
       resourceserver:
         jwt:
-#          jwk-set-uri: http://192.168.2.130:9091/realms/common-um/protocol/openid-connect/certs
           issuer-uri: http://192.168.2.130:9091/realms/common-um
+logging:
+  level:
+    org:
+      springframework:
+        security: debug
+        core:
+          convert: DEBUG
