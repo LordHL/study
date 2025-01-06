@@ -1,5 +1,6 @@
 package cn.ktl.lab.springmvc.model;
 
+import cn.ktl.lab.springmvc.base.db.CountryMappingTypeHandler;
 import cn.ktl.lab.springmvc.base.db.EncryptTypeHandler;
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.AllArgsConstructor;
@@ -59,7 +60,7 @@ public class User implements Serializable {
     @TableField(value = "phone")
     private String phone;
 
-    @TableField(value = "country_of_residence")
+//    @TableField(value = "country_of_residence",typeHandler = CountryMappingTypeHandler.class)
     private String countryOfResidence;
 
 

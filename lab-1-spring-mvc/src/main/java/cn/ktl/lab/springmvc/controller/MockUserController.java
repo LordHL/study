@@ -1,6 +1,7 @@
 package cn.ktl.lab.springmvc.controller;
 
 import cn.ktl.lab.springmvc.base.ResponseResult;
+import cn.ktl.lab.springmvc.dto.UserDTO;
 import cn.ktl.lab.springmvc.model.RegisterUserBO;
 import cn.ktl.lab.springmvc.model.User;
 import cn.ktl.lab.springmvc.service.UserService;
@@ -34,7 +35,7 @@ public class MockUserController {
         return ResponseResult.success(userService.createUserEncrypt(userBO));
     }
     @GetMapping("/encrypt/{id}")
-    public ResponseResult<User> queryUserEncrypt(@PathVariable("id")Long id){
+    public ResponseResult<UserDTO> queryUserEncrypt(@PathVariable("id")Long id){
 
         return ResponseResult.success(userService.queryUserEncrypt(id));
     }

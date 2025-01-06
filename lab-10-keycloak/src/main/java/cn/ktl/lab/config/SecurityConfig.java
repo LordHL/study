@@ -13,6 +13,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
@@ -26,6 +27,7 @@ import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
@@ -46,31 +48,63 @@ import java.util.stream.Stream;
 @Slf4j
 public class SecurityConfig {
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                            ClientRegistrationRepository clientRegistrationRepository) throws Exception {
-        http.oauth2Login(oauth2 -> oauth2.userInfoEndpoint().oidcUserService(oidcUserService())
+    JwtAuthenticationConverter authenticationConverter(Converter<Map<String, Object>, Collection<GrantedAuthority>> authoritiesConverter) {
+        var authenticationConverter = new JwtAuthenticationConverter();
+        authenticationConverter.setJwtGrantedAuthoritiesConverter(jwt -> {
+            return authoritiesConverter.convert(jwt.getClaims());
+        });
+        return authenticationConverter;
+    }
+    @Bean
+    SecurityFilterChain resourceServerSecurityFilterChain(
+            HttpSecurity http,
+            Converter<Jwt, AbstractAuthenticationToken> authenticationConverter) throws Exception {
+        http.oauth2ResourceServer(resourceServer -> {
+            resourceServer.jwt(jwtDecoder -> {
+                jwtDecoder.jwtAuthenticationConverter(authenticationConverter);
+            });
+        });
 
-        );
-
-        http.logout((logout) -> {
-            final var logoutSuccessHandler =
-                    new OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository);
-            logoutSuccessHandler.setPostLogoutRedirectUri("{baseUrl}/");
-            logout.logoutSuccessHandler(logoutSuccessHandler);
+        http.sessionManagement(sessions -> {
+            sessions.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        }).csrf(csrf -> {
+            csrf.disable();
         });
 
         http.authorizeHttpRequests(requests -> {
-            requests.requestMatchers("/", "/favicon.ico").permitAll();
-            requests.anyRequest().authenticated(); // 所有请求需认证，但不依赖 Keycloak 权限
+            requests.requestMatchers("/me").authenticated();
+            requests.anyRequest().denyAll();
         });
 
-        http.oauth2ResourceServer(oauth2 -> oauth2
-                .jwt(jwt -> jwt
-                        .jwtAuthenticationConverter(jwtAuthenticationConverter()) // 自定义 JWT 转换器
-                )
-        );
         return http.build();
     }
+
+//    @Bean
+//    public SecurityFilterChain securityFilterChain(HttpSecurity http,
+//                                            ClientRegistrationRepository clientRegistrationRepository) throws Exception {
+//        http.oauth2Login(oauth2 -> oauth2.userInfoEndpoint().oidcUserService(oidcUserService())
+//
+//        );
+//
+//        http.logout((logout) -> {
+//            final var logoutSuccessHandler =
+//                    new OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository);
+//            logoutSuccessHandler.setPostLogoutRedirectUri("{baseUrl}/");
+//            logout.logoutSuccessHandler(logoutSuccessHandler);
+//        });
+//
+//        http.authorizeHttpRequests(requests -> {
+//            requests.requestMatchers("/", "/favicon.ico").permitAll();
+//            requests.anyRequest().authenticated(); // 所有请求需认证，但不依赖 Keycloak 权限
+//        });
+//
+//        http.oauth2ResourceServer(oauth2 -> oauth2
+//                .jwt(jwt -> jwt
+//                        .jwtAuthenticationConverter(jwtAuthenticationConverter()) // 自定义 JWT 转换器
+//                )
+//        );
+//        return http.build();
+//    }
 
     /**
      * 自定义 JWT 转换器，从 Access Token 中提取用户信息。
@@ -86,32 +120,32 @@ public class SecurityConfig {
 //            return new JwtAuthenticationToken(jwt, authorities, username);
 //        };
 //    }
-    @Bean
-    public Converter<Jwt, AbstractAuthenticationToken> jwtAuthenticationConverter() {
-        return new Converter<Jwt, AbstractAuthenticationToken>() {
-            @Override
-            public AbstractAuthenticationToken convert(Jwt jwt) {
-                String username = jwt.getClaimAsString("preferred_username");
-                List<GrantedAuthority> authorities = Collections.emptyList(); // 自定义权限逻辑
-                return new JwtAuthenticationToken(jwt, authorities, username);
-            }
-        };
-    }
-    @Bean
-    public OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService() {
-        return new OAuth2UserService<OidcUserRequest, OidcUser>() {
-            @Override
-            public OidcUser loadUser(OidcUserRequest userRequest) {
-                OidcIdToken idToken = userRequest.getIdToken();
-                OidcUser oidcUser = new DefaultOidcUser(Collections.emptyList(), idToken);
-
-                // 记录登录信息或其他逻辑
-                System.out.println("ID Token claims: " + idToken.getClaims());
-
-                return oidcUser;
-            }
-        };
-    }
+//    @Bean
+//    public Converter<Jwt, AbstractAuthenticationToken> jwtAuthenticationConverter() {
+//        return new Converter<Jwt, AbstractAuthenticationToken>() {
+//            @Override
+//            public AbstractAuthenticationToken convert(Jwt jwt) {
+//                String username = jwt.getClaimAsString("preferred_username");
+//                List<GrantedAuthority> authorities = Collections.emptyList(); // 自定义权限逻辑
+//                return new JwtAuthenticationToken(jwt, authorities, username);
+//            }
+//        };
+//    }
+//    @Bean
+//    public OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService() {
+//        return new OAuth2UserService<OidcUserRequest, OidcUser>() {
+//            @Override
+//            public OidcUser loadUser(OidcUserRequest userRequest) {
+//                OidcIdToken idToken = userRequest.getIdToken();
+//                OidcUser oidcUser = new DefaultOidcUser(Collections.emptyList(), idToken);
+//
+//                // 记录登录信息或其他逻辑
+//                System.out.println("ID Token claims: " + idToken.getClaims());
+//
+//                return oidcUser;
+//            }
+//        };
+//    }
 
 
 
@@ -131,8 +165,8 @@ public class SecurityConfig {
 //        };
 //    }
 
-//    interface AuthoritiesConverter extends Converter<Map<String, Object>, Collection<GrantedAuthority>> {}
-//
+    interface AuthoritiesConverter extends Converter<Map<String, Object>, Collection<GrantedAuthority>> {}
+
 //    @Bean
 //    AuthoritiesConverter realmRolesAuthoritiesConverter() {
 //        return claims -> {

@@ -7,7 +7,9 @@ package cn.ktl.lab.springmvc.service;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.extra.spring.SpringUtil;
+import cn.ktl.lab.springmvc.base.aop.CountryMapping;
 import cn.ktl.lab.springmvc.config.AuthSvcConfig;
+import cn.ktl.lab.springmvc.dto.UserDTO;
 import cn.ktl.lab.springmvc.enums.UserTypeDefaultGroupEnum;
 import cn.ktl.lab.springmvc.enums.UserTypeEnum;
 import cn.ktl.lab.springmvc.exception.BusinessException;
@@ -86,9 +88,11 @@ public class UserService extends ServiceImpl<UserMapper, User> {
         return user;
     }
 
-    public User queryUserEncrypt(Long userId) {
+    @CountryMapping
+    public UserDTO queryUserEncrypt(Long userId) {
 
-        return userMapper.selectById(userId);
+        User user = userMapper.selectById(userId);
+        return BeanConvertUtils.baseConvert(user, UserDTO.class);
     }
 
     @Transactional
