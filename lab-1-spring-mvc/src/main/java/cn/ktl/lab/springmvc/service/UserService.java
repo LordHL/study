@@ -327,13 +327,40 @@ public class UserService extends ServiceImpl<UserMapper, User> {
         collect.forEach(System.out::println);
     }
 
+    private final EncryptionUtil encryptionUtil;
+    public String getRedisKey(KvBO bo){
+//        stringRedisTemplate.opsForValue().set("test","123");
+//        String string = stringRedisTemplate.opsForValue().get("test");
+//        String string = "jOajVeiRLcTO5HSgYUEoxLScqYB21IFHz8UIukzcqQ51h/Sp8mCRCTXnuyqhIyKH+WYqnUyKxxLBHXxClP9v5kp8/JsR8ipVhCeFfivnUSdPz0YrsxyXTU5xqIoWbedfEnbEUNkPJ8CBFs+QrkrLQs8r8CCQYd6npE8ciRtN5aIsbzeuUdJJ4rNr4GMQmsJPGcChRuVBbSu5b54GlgX+CFtIHgO+VpbO4T2uSsJLSEph3vxIE77/Hu8U6LwFNjQIZZJdLSkvXOadvAqbfmgrqUUu796QrUXBScmp2LfUCt05haHm/XThPCr0ZIZ+3pa8hJiZWJOCU2c/eUAex6s/QBlcHYdXa1yOtmAIHB+p/kp74m7W5KBhyc52o5vX2FEr85mZwoBmOatrOgU6RedpmgqFLMOLCCQsBFapIrQ2Joh2WuIzho9PaCNTBkO9/QmUdXcgx9Ab1u/6hbr1zY0SUE9cBWBu/xQu10/o0exNs5ns0X8SrHqX8K303bV7y0r4YdnxhBlMxY9WM9ESi1DZyPJCt3LoON7OIuXffPzc0jt2Sf7QXUtg9yQ0LOOh4sPM7fu6ZDXKJb88pY/SE74nEcfkhFHPvA/KHFBYH7g9VUwSbtRjYnd4DbTylpa/8WFMen3vYSxsVgY6KfzE6kR7QsF1Cu/L3VZYTO8etRvegNMvbXToPFmSX3llOWEBWu25aODfR6f7UuKaWXLBcF/ugwX4GISehnfa6g5bSny8cgGxC9EuFOqd32MUP+0vzvAjbEuoU5nBeag0bfJ8ipRVgXhEpmqvp4cbs5ZIoUdEtDf0nRbKTJAi0YspE1Ja9RrQjGKa2X8/rR+fyzDiV1yrfqytHBzqbXzp7GjGSs4NfzQkAxvcAtIo6JMU2yxAHjNNPfPjzLiQE7/KxWdsEy0gSdrpufCEstIIXE2BQCvzyjJb+r32uvpadTEDaC77H5UMXm+2nnynODR4NFdW2BukxJAGNGu+Uoa+UllX32raxuISvj3pYcipNJBXGG7Pt7LFACGFUN6ptE9rkpakzYBXoV4t6aXEy8nJFlC18nH2LClqjk1ZojDoj93GjxKX7S04fbtLPvPjGrfNg2oh4xXvZJ04UXp5Bhr/U1phoUm6LhnvvmrbzXrP9s5yDkvhzpmBf19TnuxU5oLpNYitNuk2B+6rnzT/jFaeqC8X260SbJq/+4XrMCyxSfLB8eOICwemhZdeBwyYP9Forhx1SHUwF+fM7sxCGoHxuYZToe+vFmOdWrx6io6NkfbmOdQhExfOpKGt0Kge0AQ+yd78Vo8pUg0ScAhC+M4Antrx7DY3dIrPo9MFql5yWEgsldWCGUk6e/avzaBN29fZawlOj/aGpw1bUWY14UIxWMv5/X5H1J8zqBJWcRiNq8Gultk/BEb0KLquqCHgKAnsTWh/BxIZFUc5YsfblXs1myDFk/Cwkd3UsqK/trSP2T/qBXTts9RWQzMyJS+CJWaikoKibfVddEe+JpVMqetvsLIPpWGR0JRVB/v6re/2OiOZl1wyLLm7F4b0hsKzDrLH/a2f0pkcZK6Yys7Ww//wjaTgiaN4W83lXYp3z4if611g9h4Fk6y8+L6Pv71Ln+KjTixQFxBJBUIpfLuW/N2N/4TuoD1hE/YnBuKuk7vXhr1XOR+hDw1EqTKJZ0FKJrXdBjqJ88NT6Zfsnyag8ICQRcA50NGRfKfOOcO6xhMrezPl6cUkAZQyuYXUNUrZvRa0kHD8V6UQ6iYXY4eCzQT02I1c92wQceqMbxB5GUpeUlTRW6Vy0I3VvKX0T7isvyreYWzHhFy3VriIKrtAjpT6y2LfqoCydfCtx2RHCWbtFqQ4TYMAAPbvlPTMOAcWT8EOCZ6q2cSpQLMu3Z1lHIPCj6/G7rZK4Y+7EEDFNGcr/cb8fctqo6efnKpX6Ba5B9W7RsbIIY9yyX5cDgcQ4txyEc/k/h+1FkGPjVSFpVMKJ43eczlJkZxB/RF9ZbKY38xfaJiNniuBVY3rXF2D+ckIs5rTwjgSsHgEWLoQjXsnDNVsBw8NnjGr6QBjxWUnmjZmNCHK7RsGQgww1D80fYCBfvqmKizlm3aSlx37tio86NaSLxvM1fJpLp7o+BFCdlIbdhYuPWQChxlpZT0MDvk+lYCKNSz4GAjeVcAST4KRAQ14j7X9xJcIXR7cvhNkA/P1iIMpY7T59kWZp/WuFVCIBpxkcHSHbWQZeL4vdr43TeJDjZLo/36wsrVXXWca4rZ5id2fZAWut+sJD02cGrw5EX/55iBwZVyjUei293oKOVzAea/ufyuk17MZF7QrK2KomeAJjEIBEKvLetms+4nE8rmfZfQQaNR+BZC5UGfPJBDDrvB5UEHCJnbwK2rU+MVB0EdcLPOBlakD0rwdX69v59YiDew5wKG+n406OTnC+h3KzKsTrDQ1ymYrpYIgYP3uPu7jXd8VYtVWXn/V1OCxN5n/qA2tmWuHJo4Zg2tasdi/SFTeB7+Wg74xLOZsQaLXEXTfHpviq0YcPAE29ZlXCtvHiScrfwDYLAf5oVoduusv1CUzgqGLDbyEC4FEHDWZ6Dl662zhOED1M4cy2g65kMFqbNI2MpoXg23F8i5uND/h4/xzW2SJe8w+Gs9QJvLFE6qY7s9jlLs4Kdq2AN09nrbkNzj/lGej6UbFomEesz3C/QQrXbX+Pkq3RiO/ON5if7G3eJzCNZhz7NocYjiono6tvWo0xk7F5V3p/G0AIzmPLsFk3lkUDSxmPZ4bPF8DWxzf82jXQSjARzwS+OgN1stnebXk2yzyEap3YdOT43C2dW1LIdKYlkOEXxl2ga/I7uuac9Sp77Mn7ItUl+jw/gnhuwNjrc1W+d9ZpYGYyHsxmQSZo/GIX6k7SL1gFS9gcl+EIzQ4R1QAPORYUkfX2owct2ksXnwIDDsT+CjwsQvJ9u7H/Lv/";
+        String decrypt = encryptionUtil.decrypt(bo.getKey());
+        return decrypt;
+    }
 
-    public String getRedisKey(){
-        stringRedisTemplate.opsForValue().set("test","123");
-        String string = stringRedisTemplate.opsForValue().get("test");
-        return string;
+    private final AllFraudDetectionService allFraudDetectionService;
+
+    @Transactional
+    public void testTransactional(RegisterUserBO userBO){
+        User user = BeanConvertUtils.baseConvert(userBO, User.class);
+        LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+        user.setLastPasswordResetTime(now);
+        user.setPassword(passwordEncoder.encode(userBO.getPassword()));
+        user.setRegistrationTime(now);
+        user.setUserStatus(1);
+        user.setFullName(userBO.getFirstName() + " " + userBO.getLastName());
+        user.setUpdatedTime(now);
+        user.setUpdatedBy("1");
+        save(user);
+        allFraudDetectionService.detectAndHandleVpn(new VpnFraudDetectionEvent(this,1L,1,""));
     }
 
 
+    public void getUserHasGroup(List<String> emails){
+
+        for (String email : emails){
+            UserGroupVO userGroupVO = new UserGroupVO();
+//            userMapper.selectOne()
+        }
+
+    }
 
 }

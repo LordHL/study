@@ -1,5 +1,6 @@
 package cn.ktl.lab.springmvc.model;
 
+import cn.ktl.lab.springmvc.base.db.EncryptTypeHandler;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -15,7 +16,8 @@ import lombok.NoArgsConstructor;
  */
 
 @Data
-@TableName("um_totp_info")
+//@TableName("um_totp_info")
+@TableName(value = "um_totp_info",autoResultMap = true)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -28,15 +30,18 @@ public class TotpInfo {
     @TableField(value = "email")
     private String email;
 
-    @TableField(value = "qr_image")
+//    @TableField(value = "qr_image")
+    @TableField(value = "qr_image",typeHandler = EncryptTypeHandler.class)
     private String qrImage;
 
 
-    @TableField(value = "recovery_key")
+//    @TableField(value = "recovery_key")
+    @TableField(value = "recovery_key",typeHandler = EncryptTypeHandler.class)
     private String recoveryKey;
 
 
-    @TableField(value = "totp_key")
+//    @TableField(value = "totp_key")
+    @TableField(value = "totp_key",typeHandler = EncryptTypeHandler.class)
     private String totpKey;
 
     /**

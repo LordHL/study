@@ -17,8 +17,8 @@ import java.time.LocalDateTime;
  * @date 2020-11-29
  */
 @Data
-@TableName(value = "um_user")
-//@TableName(value = "um_user",autoResultMap = true)
+//@TableName(value = "um_user")
+@TableName(value = "um_user",autoResultMap = true)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -37,11 +37,12 @@ public class User implements Serializable {
     @TableField(value = "full_name")
     private String fullName;
 
-//    @TableField(value = "first_name",typeHandler = EncryptTypeHandler.class)
-    @TableField(value = "first_name")
+    @TableField(value = "first_name",typeHandler = EncryptTypeHandler.class)
+//    @TableField(value = "first_name")
     private String firstName;
 
-    @TableField(value = "last_name")
+//    @TableField(value = "last_name")
+    @TableField(value = "last_name",typeHandler = EncryptTypeHandler.class)
     private String lastName;
 
 

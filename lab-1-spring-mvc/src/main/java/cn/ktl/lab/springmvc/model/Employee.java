@@ -1,5 +1,6 @@
 package cn.ktl.lab.springmvc.model;
 
+import cn.ktl.lab.springmvc.base.db.EncryptTypeHandler;
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,10 +34,10 @@ public class Employee implements Serializable {
     @TableField(value = "username")
     private String username;
 
-    @TableField(value = "first_name")
+    @TableField(value = "first_name", typeHandler = EncryptTypeHandler.class)
     private String firstName;
 
-    @TableField(value = "last_name")
+    @TableField(value = "last_name", typeHandler = EncryptTypeHandler.class)
     private String lastName;
 
 

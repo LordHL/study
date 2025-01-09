@@ -1,10 +1,9 @@
 package cn.ktl.lab.springmvc.base.db;
 
-import cn.hutool.core.codec.Base64;
-import cn.hutool.core.lang.Assert;
-import cn.hutool.crypto.SecureUtil;
 import cn.hutool.crypto.symmetric.AES;
 import cn.hutool.extra.spring.SpringUtil;
+
+import cn.ktl.lab.springmvc.utils.EncryptionUtil;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 
@@ -18,59 +17,35 @@ import java.sql.SQLException;
  *
  */
 public class EncryptTypeHandler extends BaseTypeHandler<String> {
+    private final EncryptionUtil encryptionUtil;
 
-    private static final String ENCRYPTOR_PROPERTY_NAME = "mybatis-plus.encryptor.secret";
-
-    private static AES aes;
-
+    public EncryptTypeHandler() {
+        this.encryptionUtil = SpringUtil.getBean(EncryptionUtil.class);
+        if (this.encryptionUtil == null) {
+            throw new IllegalStateException("EncryptionUtil bean could not be found in Spring context");
+        }
+    }
     @Override
     public void setNonNullParameter(PreparedStatement ps, int i, String parameter, JdbcType jdbcType) throws SQLException {
-        ps.setString(i, encrypt(parameter));
+        ps.setString(i, encryptionUtil.encrypt(parameter));
     }
 
     @Override
     public String getNullableResult(ResultSet rs, String columnName) throws SQLException {
         String value = rs.getString(columnName);
-        return decrypt(value);
+        return encryptionUtil.decrypt(value);
     }
 
     @Override
     public String getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
         String value = rs.getString(columnIndex);
-        return decrypt(value);
+        return encryptionUtil.decrypt(value);
     }
 
     @Override
     public String getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
         String value = cs.getString(columnIndex);
-        return decrypt(value);
+        return encryptionUtil.decrypt(value);
     }
-
-    private static String decrypt(String value) {
-        if (value == null) {
-            return null;
-        }
-        return getEncryptor().decryptStr(value);
-    }
-
-    public static String encrypt(String rawValue) {
-        if (rawValue == null) {
-            return null;
-        }
-        return getEncryptor().encryptBase64(rawValue);
-    }
-
-    private static AES getEncryptor() {
-        if (aes != null) {
-            return aes;
-        }
-        // 构建 AES
-        String password = SpringUtil.getProperty(ENCRYPTOR_PROPERTY_NAME);
-
-        Assert.notEmpty(password, "配置项({}) 不能为空", ENCRYPTOR_PROPERTY_NAME);
-        aes = SecureUtil.aes(Base64.decode(password));
-        return aes;
-    }
-
 
 }

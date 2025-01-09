@@ -2,6 +2,7 @@ package cn.ktl.lab.springmvc.controller;
 
 import cn.ktl.lab.springmvc.base.ResponseResult;
 import cn.ktl.lab.springmvc.dto.UserDTO;
+import cn.ktl.lab.springmvc.model.KvBO;
 import cn.ktl.lab.springmvc.model.RegisterUserBO;
 import cn.ktl.lab.springmvc.model.User;
 import cn.ktl.lab.springmvc.service.UserService;
@@ -58,9 +59,15 @@ public class MockUserController {
         return ResponseResult.success(Boolean.TRUE);
     }
 
-    @GetMapping("/kv")
-    public ResponseResult<String> kv() {
-        userService.getRedisKey();
-        return ResponseResult.success( userService.getRedisKey());
+    @PostMapping("/kv")
+    public ResponseResult<String> kv(@RequestBody KvBO bo) {
+        String redisKey = userService.getRedisKey(bo);
+        return ResponseResult.success( redisKey);
+    }
+
+    @PostMapping("/tr")
+    public ResponseResult<String> test(@RequestBody RegisterUserBO userBO) {
+        userService.testTransactional(userBO);
+        return ResponseResult.success("ok");
     }
 }
