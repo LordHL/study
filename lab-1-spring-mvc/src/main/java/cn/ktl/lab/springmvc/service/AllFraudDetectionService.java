@@ -24,9 +24,4 @@ public class AllFraudDetectionService {
         }
     }
 
-//    @Transactional(propagation = Propagation.REQUIRES_NEW)
-//    public void otherFraudDetection(VpnFraudDetectionEvent event) {
-//        AsyncDetectionBO vpnDetectionBO = BeanConvertUtils.baseConvert(event, AsyncDetectionBO.class);
-//        fraudDetectionService.asyncDetect(vpnDetectionBO);
-//    }
 }

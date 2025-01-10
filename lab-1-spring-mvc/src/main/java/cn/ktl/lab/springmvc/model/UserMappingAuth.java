@@ -1,6 +1,7 @@
 package cn.ktl.lab.springmvc.model;
 
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,7 +25,7 @@ import java.io.Serializable;
 public class UserMappingAuth implements Serializable {
     private static final long serialVersionUID = -12L;
 
-    @TableField(value = "user_id")
+    @TableId(value = "user_id")
     private Long userId;
 
     @TableField(value = "auth_login_uid")

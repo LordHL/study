@@ -350,7 +350,20 @@ public class UserService extends ServiceImpl<UserMapper, User> {
         user.setUpdatedTime(now);
         user.setUpdatedBy("1");
         save(user);
-        allFraudDetectionService.detectAndHandleVpn(new VpnFraudDetectionEvent(this,1L,1,""));
+        try {
+            allFraudDetectionService.detectAndHandleVpn(new VpnFraudDetectionEvent(this, 1L, 1, ""));
+        } catch (BusinessException e) {
+            log.error("Error during VPN fraud detection: {}", e.getMessage());
+        }
+//        allFraudDetectionService.detectAndHandleVpn(new VpnFraudDetectionEvent(this,1L,1,""));
+//        Long id = 123344181044318208L;
+//        UserMappingAuth userMappingAuth = userMappingAuthMapper.selectByUserIdUserMappingAuth(id);
+//        if (userMappingAuth == null){
+//            userMappingAuthMapper.insert(new UserMappingAuth(id,"12"));
+//        }else {
+//            userMappingAuth.setAuthLoginUid("12345");
+//            userMappingAuthMapper.updateById(userMappingAuth);
+//        }
     }
 
 
